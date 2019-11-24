@@ -7,24 +7,77 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(rpart)
+library(ggplot2)
+library(readr)
+library(randomForest)
+train <- read_csv("train.csv")
+factorstring = c("SEX","EDUCATION","MARRIAGE","PAY_0","PAY_2","PAY_3","PAY_4","PAY_5","PAY_6","default.payment.next.month")
+train[,factorstring] = lapply(train[,factorstring],as.factor)
+test <- read_csv("test.csv")
+test[,factorstring] = lapply(test[,factorstring],as.factor)
+
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+```{r}
+p = ggplot(train,aes(x=SEX,  
+                    y=EDUCATION, 
+                    color=default.payment.next.month))
 
-```{r cars}
-summary(cars)
+p + geom_jitter(alpha=0.3) +  
+  scale_color_manual(breaks = c('No Default','Default'),
+                     values=c('darkgreen','red'))
+
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+```{r}
+p = ggplot(train,aes(x=PAY_0,  
+                    y=PAY_3, 
+                    color=default.payment.next.month))
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+p + geom_jitter(alpha=0.3) +  
+  scale_color_manual(breaks = c('No Default','Default'),
+                     values=c('darkgreen','red'))
+
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+p = ggplot(train,aes(x=MARRIAGE,  
+                    y=SEX, 
+                    color=default.payment.next.month))
+
+p + geom_jitter(alpha=0.3) +  
+  scale_color_manual(breaks = c('No Default','Default'),
+                     values=c('darkgreen','red'))
+
+```
+
+
+```{r}
+p = ggplot(train,aes(x=MARRIAGE,  
+                    y=SEX, 
+                    color=default.payment.next.month))
+
+p + geom_jitter(alpha=0.3) +  
+  scale_color_manual(breaks = c('No Default','Default'),
+                     values=c('darkgreen','red'))
+
+```
+
+```{r}
+model = rpart(default.payment.next.month ~ . , data=train,method="class")
+
+printcp(model)
+
+plotcp(model)
+
+plot(model, uniform=TRUE,
+   main="Classification Tree for Defaults")
+text(model, use.n=TRUE, all=TRUE, cex=.8)
+```
